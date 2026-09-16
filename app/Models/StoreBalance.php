@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use App\Traits\UUID;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class StoreBallance extends Model
+class StoreBalance extends Model
 {
-    use UUID;
+    use UUID, HasFactory;
 
     protected $fillable = [
         'store_id',
@@ -18,15 +19,22 @@ class StoreBallance extends Model
         'balance' => 'decimal:2',
     ];
 
+    public function scopeSearch($query, $search)
+    {
+        return $query->whereHas('store', function($q) use ($search) { 
+            $q->where('name', 'like', '%' . $search . '%');
+        });
+    }
+
     // store balance is owned by one store
     public function store()
     {
         return $this->belongsTo(Store::class);
     }
 
-    public function storeBallanceHistories()
+    public function storeBalanceHistories()
     {
-        return $this->hasMany(StoreBallanceHistory::class);
+        return $this->hasMany(StoreBalanceHistory::class);
     }
 
     public function withdrawals()
