@@ -21,7 +21,7 @@ class BuyerUpdateRequest extends FormRequest
         ];
     }
 
-    public function attributes()
+    public function attributes(): array
     {
         return [
             'profile_picture' => 'Avatar',

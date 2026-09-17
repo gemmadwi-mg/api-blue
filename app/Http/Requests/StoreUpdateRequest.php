@@ -26,7 +26,7 @@ class StoreUpdateRequest extends FormRequest
         ];
     }
 
-    public function attributes()
+    public function attributes(): array
     {
         return [
             'name' => 'Nama Toko',

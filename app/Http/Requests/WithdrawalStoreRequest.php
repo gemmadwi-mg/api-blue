@@ -25,7 +25,7 @@ class WithdrawalStoreRequest extends FormRequest
     }
 
   
-    public function attributes()
+    public function attributes(): array
     {
         return [
             'store_balance_id' => 'Dompet Toko',

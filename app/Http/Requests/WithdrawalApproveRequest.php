@@ -21,7 +21,7 @@ class WithdrawalApproveRequest extends FormRequest
     }
 
     #[Override]
-    public function attributes()
+    public function attributes(): array
     {
         return [
             'proof' => 'Bukti Transfer'
