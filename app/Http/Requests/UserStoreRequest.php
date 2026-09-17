@@ -21,7 +21,7 @@ class UserStoreRequest extends FormRequest
         ];
     }
 
-    public function attributes()
+    public function attributes(): array
     {
         return [
             'name' => 'Nama',

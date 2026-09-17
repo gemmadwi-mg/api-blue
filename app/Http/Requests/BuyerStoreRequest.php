@@ -21,7 +21,7 @@ class BuyerStoreRequest extends FormRequest
         ];
     }
 
-    public function attributes()
+    public function attributes(): array
     {
         return [
             'user_id' => 'User',
