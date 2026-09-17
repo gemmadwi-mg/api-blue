@@ -15,10 +15,11 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('store_balance_id');
             $table->foreign('store_balance_id')->references('id')->on('store_balances')->onDelete('cascade');
-            $table->decimal('amout', 26, 2);
+            $table->decimal('amount', 26, 2);
             $table->string('bank_account_name');
             $table->string('bank_account_number');
             $table->string('bank_name');
+            $table->string('proof')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected']);
             $table->timestamps();
         });
