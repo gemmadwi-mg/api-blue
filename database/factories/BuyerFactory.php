@@ -26,7 +26,7 @@ class BuyerFactory extends Factory
             'user_id' => User::factory(),
             'profile_picture' => $imageHelper->storeAndResizeImage(
                 $imageHelper->createDummyImageWithTextSizeAndPosition(250, 250, 'center', 'center', 'random', 'medium'),
-                'store',
+                'buyer',
                 250,
                 250
             ),
