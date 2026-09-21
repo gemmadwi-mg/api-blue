@@ -49,14 +49,14 @@ class ProductRepository implements ProductRepositoryInterface
 
     public function getById(string $id)
     {
-        $query = Product::where('id', $id)->with('productImages');
+        $query = Product::where('id', $id)->with(['productImages', 'productReviews']);
 
         return $query->first();
     }
 
     public function getBySlug(string $slug)
     {
-        $query = Product::where('slug', $slug)->with('productImages');
+        $query = Product::where('slug', $slug)->with(['productImages', 'productReviews']);
 
         return $query->first();
     }
