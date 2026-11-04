@@ -21,7 +21,7 @@ class ProductCategoryRepository implements ProductCategoryRepositoryInterface
             if ($isParent === true) {
                 $query->whereNull('parent_id');
             }
-        });
+        })->withCount(['products', 'childrens'])->with('childrens');
 
         if ($limit) {
             $query->take($limit);

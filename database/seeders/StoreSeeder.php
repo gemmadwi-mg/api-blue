@@ -16,7 +16,7 @@ class StoreSeeder extends Seeder
      */
     public function run(): void
     {
-        Store::factory()->count(10)->create()->each(function ($store) { 
+        Store::factory()->count(3)->create()->each(function ($store) { 
             $storeBalance = StoreBalance::factory()->create(['store_id' => $store->id]);
             StoreBalanceHistory::factory()->create([ 
                 'store_balance_id' => $storeBalance->id,

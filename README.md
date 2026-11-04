@@ -1,58 +1,161 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# API Blue
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+REST API marketplace berbasis **Laravel**. Mendukung autentikasi, manajemen toko, produk, transaksi, saldo toko, dan penarikan dana (withdrawal), dengan pembayaran melalui **Midtrans**.
 
-## About Laravel
+## Fitur
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Autentikasi** token-based dengan Laravel Sanctum (register, login)
+- **Role & permission** dengan spatie/laravel-permission
+- **Pengguna & pembeli** (`User`, `Buyer`)
+- **Toko** (`Store`) beserta **saldo** dan **riwayat saldo** (`StoreBalance`, `StoreBalanceHistory`)
+- **Kategori produk, produk, gambar produk, dan ulasan produk**
+- **Transaksi** beserta detail transaksi, terintegrasi Midtrans
+- **Withdrawal**: pengajuan penarikan saldo toko dan persetujuan (approve)
+- **Pagination** dengan format response seragam (`PaginateResource`, `ResponseHelper`)
+- **Image helper** (`app/Helpers/ImageHelper`) untuk pengolahan gambar dengan font Arial
+- **Lokalisasi** pesan validasi dalam Bahasa Indonesia dan Inggris (`lang/id`, `lang/en`)
+- **Debugging** dengan Laravel Telescope
+- **Testing** dengan Pest
+- **Docker** (`docker-compose.yml`)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Arsitektur
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Proyek memakai **Repository Pattern**:
 
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```
+Controller → Request (validasi) → Repository (via Interface) → Model → Resource (response)
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+```
+app/
+├── Helpers/            # ImageHelper, ResponseHelper
+├── Http/
+│   ├── Controllers/    # Auth, Buyer, Product, ProductCategory, ProductReview,
+│   │                   # Store, StoreBalance, StoreBalanceHistory,
+│   │                   # Transaction, User, Withdrawal
+│   ├── Requests/       # Form request validation
+│   └── Resources/      # API resources (format response JSON)
+├── Interfaces/         # Kontrak repository
+├── Models/             # Eloquent models (UUID trait)
+├── Providers/          # RepositoryServiceProvider mengikat Interface → Repository
+├── Repositories/       # Logika akses data
+└── Traits/UUID.php     # Primary key UUID
+database/
+├── factories/
+├── migrations/
+└── seeders/            # Role, Permission, User, Store, Buyer, Category, Product, Transaction
+routes/api.php          # Definisi endpoint API
+tests/                  # Pest (Feature & Unit)
+```
 
-## Contributing
+## Model Data
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+| Model | Keterangan |
+|---|---|
+| `User` | Akun pengguna (dengan role) |
+| `Buyer` | Profil pembeli |
+| `Store` | Toko milik user |
+| `StoreBalance` / `StoreBalanceHistory` | Saldo toko dan riwayat mutasinya |
+| `Withdrawal` | Permintaan penarikan saldo |
+| `ProductCategory` | Kategori produk |
+| `Product` / `ProductImage` / `ProductReview` | Produk, gambar, dan ulasan |
+| `Transaction` / `TransactionDetail` | Transaksi dan item di dalamnya |
 
-## Code of Conduct
+## Prasyarat
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- PHP (sesuai `composer.json`)
+- Composer
+- Node.js & npm
+- SQLite (default, `database/database.sqlite`) atau database lain yang didukung Laravel
+- Akun Midtrans (untuk pembayaran)
 
-## Security Vulnerabilities
+## Instalasi
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+# 1. Install dependency
+composer install
+npm install
 
-## License
+# 2. Siapkan environment
+cp .env.example .env
+php artisan key:generate
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# 3. Migrasi dan seeder
+php artisan migrate --seed
+
+# 4. Buat symlink storage (untuk upload gambar)
+php artisan storage:link
+
+# 5. Jalankan aplikasi
+php artisan serve
+npm run dev
+```
+
+API tersedia di `http://localhost:8000/api`.
+
+## Konfigurasi
+
+Atur nilai berikut di `.env`:
+
+```env
+APP_NAME="API Blue"
+APP_URL=http://localhost:8000
+
+DB_CONNECTION=sqlite
+
+# Midtrans (lihat config/midtrans.php untuk nama variabel yang dipakai)
+MIDTRANS_SERVER_KEY=
+MIDTRANS_CLIENT_KEY=
+MIDTRANS_IS_PRODUCTION=false
+```
+
+> Nama variabel Midtrans di atas adalah contoh umum. Sesuaikan dengan isi `config/midtrans.php` dan `.env.example`.
+
+## Menjalankan dengan Docker
+
+```bash
+docker compose up -d --build
+```
+
+## Autentikasi
+
+Endpoint terproteksi memerlukan token Sanctum:
+
+```
+Authorization: Bearer <token>
+Accept: application/json
+```
+
+Token diperoleh dari endpoint login pada `AuthController`.
+
+## Endpoint
+
+Daftar lengkap ada di `routes/api.php`. Untuk melihatnya:
+
+```bash
+php artisan route:list --path=api
+```
+
+Kelompok resource utama: `auth`, `user`, `buyer`, `store`, `store-balance`, `store-balance-history`, `product-category`, `product`, `product-review`, `transaction`, `withdrawal`.
+
+## Testing
+
+```bash
+php artisan test
+# atau
+./vendor/bin/pest
+```
+
+## Telescope
+
+Dashboard debugging tersedia di `/telescope` (sesuai konfigurasi `config/telescope.php`). Nonaktifkan atau batasi aksesnya di production.
+
+## Catatan Keamanan
+
+- Jangan commit file `.env` (berisi kredensial).
+- Jangan commit `storage/logs/*.log`, `storage/framework/views/*`, `bootstrap/cache/*`, dan `database/database.sqlite`.
+- Batasi akses Telescope di lingkungan production.
+
+## Lisensi
+
+Tentukan lisensi proyek ini (mis. MIT).
