@@ -126,7 +126,6 @@ class StoreRepository implements StoreRepositoryInterface
         }
     }
 
-    #[Override]
     public function delete(string $id)
     {
         DB::beginTransaction();
